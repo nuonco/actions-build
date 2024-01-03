@@ -1,0 +1,32 @@
+name: Build Component
+description: Build a Nuon component.
+inputs:
+  org_id:
+    description: Your Nuon org.
+    required: true
+  api_token:
+    description: You Nuon API token.
+    required: true
+  component_id:
+    description: The Nuon component you want to build.
+    required: true
+outputs:
+  build_id:
+    description: The build that was created.
+runs:
+  using: composite
+  steps:
+    - name: Set up path
+      run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+    - name: Install CLI
+      run: install.sh
+      shell: bash
+    - name: Create build
+      run: nuon builds create -j -c $COMPONENT_ID | jq -r '"BUILD_ID=\(.id)"' >> $GITHUB_OUTPUT
+      shell: bash
+      env:
+        NUON_ORG_ID: ${{ inputs.org_id }}
+        NUON_API_TOKEN: ${{ inputs.api_token }}
+        COMPONENT_ID: ${{ inputs.component_id }}
+        NUON_API_URL: https://ctl.stage.nuon.co
