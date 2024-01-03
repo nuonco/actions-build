@@ -34,9 +34,18 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
           patchAll: true
-
       - name: Push tag
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           custom_tag: ${{ steps.semver.outputs.nextStrict }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
