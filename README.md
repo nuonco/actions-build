@@ -23,7 +23,8 @@ The typical use-case for this action is to run it when updates are made to your 
 ```yaml
 on:
   push:
-    branches: main
+    branches:
+      - main
     paths:
       - 'components/my-component/**'
       - 'nuon/my-component.tf'
