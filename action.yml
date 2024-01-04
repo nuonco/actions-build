@@ -1,7 +1,7 @@
 name: Build Component
 description: Build a Nuon component.
 branding:
-  icon: 'package'
+  icon: 'archive'
   color: 'blue'
 inputs:
   org_id:
