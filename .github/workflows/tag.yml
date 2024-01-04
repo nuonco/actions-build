@@ -6,4 +6,4 @@ on:
       - main
 jobs:
   bump_tag:
-    uses: nuonco/.github/.github/workflows/tag.yml@ja/reusable-tagging-workflow
+    uses: nuonco/.github/.github/workflows/tag.yml@main
