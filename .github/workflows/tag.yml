@@ -4,46 +4,6 @@ on:
   push:
     branches:
       - main
-
-permissions:
-  contents: write
-  id-token: write
-  issues: read
-  packages: write
-  pull-requests: write
-  statuses: write
-  actions: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: false
-
-defaults:
-  run:
-    shell: bash
-
 jobs:
   bump_tag:
-    name: bump tag
-    runs-on: ubuntu-latest
-    steps:
-      - name: Determine next version
-        id: semver
-        uses: ietf-tools/semver-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
-          patchAll: true
-      - name: Push tag
-        id: push_tag
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ steps.semver.outputs.nextStrict }}
-      - name: Create release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.push_tag.outputs.new_tag }}
-          release_name: ${{ steps.push_tag.outputs.new_tag }}
+    uses: nuonco/.github/.github/workflows/tag.yml@ja/reusable-tagging-workflow
