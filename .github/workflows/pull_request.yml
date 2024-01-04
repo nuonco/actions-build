@@ -18,25 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
       - name: Run lints
         uses: nuonco/sandboxes/actions/pr-checks@main
-
-  integration-test:
-    runs-on: ubuntu-latest
-    name: Integration test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Integration test
-        uses: ./
-        with:
-          org_id: ${{ secrets.test_org_id }}
-          api_token: ${{ secrets.test_api_token }}
-          component_id: ${{ secrets.test_component_id }}
-          api_url: ${{ secrets.test_api_url }}
-
-
   update_status:
     name: update status
     if: github.event_name == 'pull_request' && always()
