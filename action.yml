@@ -2,7 +2,7 @@ name: Build Component
 description: Build a Nuon component.
 branding:
   icon: 'package'
-  color: 'purple'
+  color: 'blue'
 inputs:
   org_id:
     description: Your Nuon org.
