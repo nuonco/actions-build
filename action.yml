@@ -13,6 +13,10 @@ inputs:
   component_id:
     description: The Nuon component you want to build.
     required: true
+  api_url:
+    description: The URL of the Nuon API.
+    required: false
+    default: https://ctl.prod.nuon.co
 outputs:
   build_id:
     description: The build that was created.
@@ -32,4 +36,4 @@ runs:
         NUON_ORG_ID: ${{ inputs.org_id }}
         NUON_API_TOKEN: ${{ inputs.api_token }}
         COMPONENT_ID: ${{ inputs.component_id }}
-        NUON_API_URL: https://ctl.stage.nuon.co
+        NUON_API_URL: ${{ inputs.api_url }}
