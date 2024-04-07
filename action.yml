@@ -13,6 +13,9 @@ inputs:
   component_id:
     description: The Nuon component you want to build.
     required: true
+  app_id:
+    description: The Nuon app the component belongs to (only required if you have multiple apps).
+    required: false
   api_url:
     description: The URL of the Nuon API.
     required: false
@@ -37,3 +40,4 @@ runs:
         NUON_API_TOKEN: ${{ inputs.api_token }}
         COMPONENT_ID: ${{ inputs.component_id }}
         NUON_API_URL: ${{ inputs.api_url }}
+        NUON_APP_ID: ${{ inputs.app_id }}
