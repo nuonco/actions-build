@@ -23,6 +23,7 @@ inputs:
 outputs:
   build_id:
     description: The build that was created.
+    value: ${{ steps.build.outputs.build_id }}
 runs:
   using: composite
   steps:
@@ -33,6 +34,7 @@ runs:
       run: install.sh
       shell: bash
     - name: Create build
+      id: build
       run: nuon builds create -j -c $COMPONENT_ID | jq -r '"BUILD_ID=\(.id)"' >> $GITHUB_OUTPUT
       shell: bash
       env:
