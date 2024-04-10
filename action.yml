@@ -35,7 +35,7 @@ runs:
       shell: bash
     - name: Create build
       id: build
-      run: nuon builds create -j -c $COMPONENT_ID | jq -r '"BUILD_ID=\(.id)"' >> $GITHUB_OUTPUT
+      run: build.sh || exit 1
       shell: bash
       env:
         NUON_ORG_ID: ${{ inputs.org_id }}
