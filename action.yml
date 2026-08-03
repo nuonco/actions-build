@@ -5,21 +5,21 @@ branding:
   color: 'purple'
 inputs:
   org_id:
-    description: Your Nuon org.
+    description: Your Nuon org ID.
     required: true
   api_token:
-    description: You Nuon API token.
-    required: true
+    description: A Nuon API token. Omit when using GitHub Actions OIDC.
+    required: false
   component_id:
     description: The Nuon component you want to build.
     required: true
   app_id:
-    description: The Nuon app the component belongs to (only required if you have multiple apps).
-    required: false
+    description: The Nuon app the component belongs to.
+    required: true
   api_url:
     description: The URL of the Nuon API.
     required: false
-    default: https://ctl.prod.nuon.co
+    default: https://api.nuon.co
 outputs:
   build_id:
     description: The build that was created.
@@ -27,15 +27,12 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Set up path
-      run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash
     - name: Install CLI
-      run: install.sh
+      run: "${{ github.action_path }}/install.sh"
       shell: bash
     - name: Create build
       id: build
-      run: build.sh || exit 1
+      run: "${{ github.action_path }}/build.sh"
       shell: bash
       env:
         NUON_ORG_ID: ${{ inputs.org_id }}

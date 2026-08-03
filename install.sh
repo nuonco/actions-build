@@ -1,56 +1,55 @@
 #!/bin/bash
 
-if [ "$NUON_DEBUG" = "true" ]
-then
+set -euo pipefail
+
+if [ "${NUON_DEBUG:-}" = "true" ]; then
   set -x
 fi
 
-set -e
-set -o pipefail
-set -u
-
 BASE_URL=https://nuon-artifacts.s3.us-west-2.amazonaws.com/cli
-NAME=nuon
+VERSION=0.19.1102
+OS=$(uname -s | awk '{print tolower($0)}')
 
-DIR=~/bin
-if [ ! -d "$DIR" ]; then
-  DIR=/usr/local/bin
+case "$(uname -m)" in
+  x86_64 | amd64) ARCH=amd64 ;;
+  arm64 | aarch64) ARCH=arm64 ;;
+  *)
+    echo "Unsupported architecture: $(uname -m)" >&2
+    exit 1
+    ;;
+esac
 
-  # fall back to /usr/local/bin
-  if [ ! -d $DIR ]; then
-    # fall back to /bin
-    DIR=/bin
-  fi
+ARTIFACT="nuon_${OS}_${ARCH}"
+TEMP_DIR=$(mktemp -d)
+INSTALL_DIR="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/nuon/bin"
+trap 'rm -rf "$TEMP_DIR"' EXIT
+
+curl --fail --location --retry 3 --silent --show-error \
+  "$BASE_URL/$VERSION/checksums.txt" \
+  --output "$TEMP_DIR/checksums.txt"
+curl --fail --location --retry 3 --silent --show-error \
+  "$BASE_URL/$VERSION/$ARTIFACT" \
+  --output "$TEMP_DIR/$ARTIFACT"
+
+EXPECTED=$(awk -v artifact="$ARTIFACT" '$2 == artifact { print $1 }' "$TEMP_DIR/checksums.txt")
+if [ -z "$EXPECTED" ]; then
+  echo "No checksum found for $ARTIFACT" >&2
+  exit 1
 fi
 
-echo "Installing nuon cli into $DIR"
-
-echo "checking OS and Architecture..."
-set +e
-dpkg_path=$(which dpkg)
-set -e
-if [ "$dpkg_path" = "" ]
-then
-  ARCH=$(uname -m)
+if command -v sha256sum >/dev/null 2>&1; then
+  ACTUAL=$(sha256sum "$TEMP_DIR/$ARTIFACT" | awk '{ print $1 }')
 else
-  ARCH=$(dpkg --print-architecture)
+  ACTUAL=$(shasum -a 256 "$TEMP_DIR/$ARTIFACT" | awk '{ print $1 }')
 fi
 
-if [ "$ARCH" = "x86_64" ]; then
-  ARCH=amd64
+if [ "$ACTUAL" != "$EXPECTED" ]; then
+  echo "Checksum verification failed for $ARTIFACT" >&2
+  exit 1
 fi
 
-OS=$(uname -s |  awk '{print tolower($0)}')
-echo "✅ using version ${OS}_${ARCH}..."
+mkdir -p "$INSTALL_DIR"
+install -m 0755 "$TEMP_DIR/$ARTIFACT" "$INSTALL_DIR/nuon"
+echo "$INSTALL_DIR" >> "$GITHUB_PATH"
 
-echo "calculating latest version..."
-VERSION=$(curl -s $BASE_URL/latest.txt)
-echo "✅ using version ${VERSION}..."
-
-echo "fetching binary for ${OS} ${ARCH}..."
-curl -s -o $DIR/$NAME $BASE_URL/$VERSION/${NAME}_${OS}_${ARCH}
-echo "✅ fetching binary for ${OS} ${ARCH}..."
-
-echo "making binary executable..."
-chmod +x $DIR/$NAME
-echo "✅ nuon should be ready to use"
+echo "Installed Nuon CLI $VERSION"
