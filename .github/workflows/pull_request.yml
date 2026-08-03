@@ -6,3 +6,15 @@ name: pull request checks
 jobs:
   check-pr:
     uses: nuonco/.github/.github/workflows/pull_request.yml@main
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell scripts
+        run: bash -n install.sh build.sh test.sh
+      - name: Test build command contract
+        run: ./test.sh
+      - name: Test CLI installation
+        run: ./install.sh
+      - name: Verify CLI version
+        run: nuon version --output json | jq -e '.version == "0.19.1102"'
